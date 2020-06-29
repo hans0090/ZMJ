@@ -4,9 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.app.slice.Slice;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,12 +23,30 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceConfigurationError;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+//import okhttp3.OkHttpClient;
+//import okhttp3.Request;
+//import okhttp3.Response;
 
     public class MainActivity extends AppCompatActivity {
 
+        final String url = "106.13.35.183/";
+        private BannerView bannerView;
         ListView SearchList;
         SearchView searchView;
         private ArrayList<String> anims;
@@ -36,12 +58,46 @@ import java.util.ServiceConfigurationError;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setview();
+//
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpURLConnection connection = null;
+                    BufferedReader bufferedReader = null;
+
+                    try {
+                        URL url = new URL("http://106.13.35.183/banner.txt");
+                        connection = (HttpURLConnection)url.openConnection();
+                        connection.setRequestMethod("GET");
+                        connection.setConnectTimeout(8000);
+                        connection.setReadTimeout(8000);
+
+                        InputStream is = connection.getInputStream();
+
+                        bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = bufferedReader.readLine())!=null){
+                            sb.append(line);
+
+                            Log.e("fadf",line);
+                        }
+                        Log.e("fadf",sb.toString());
+
+
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Log.e("fadsf","---------------");
+                    }
+                }
+            }).start();
     }
 
 
 
     private void setview(){
-
         //初始化搜索框
         searchView=(SearchView)findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -109,6 +165,26 @@ import java.util.ServiceConfigurationError;
         recyclerView.setLayoutManager(layoutManager);
 
 
+
+        //////////////////////////////////////////////////
+        bannerView = findViewById(R.id.vp_view_pager);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            bannerView.setShowLeftAndRightPage(17, true, new GalleryTransformer());
+        } else {
+            bannerView.setShowLeftAndRightPage(15);
+        }
+
+        bannerView.setEntries(getImageBannerEntries());
+        bannerView.selectCenterPage(2);
+        bannerView.setOnPageClickListener(new BannerView.OnPageClickListener() {
+            @Override
+            public void onPageClick(BannerEntry entry, int index) {
+                Intent intent = new Intent(MainActivity.this,Web.class);
+                index++;
+                intent.putExtra("url","http://"+url+"banner"+index+"/"+index+".html");
+                startActivity(intent);
+            }
+        });
     }
 
         //把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
@@ -126,4 +202,12 @@ import java.util.ServiceConfigurationError;
         }
     }
 
+        @NonNull
+        private List<ImageBannerEntry> getImageBannerEntries() {
+            List<ImageBannerEntry> items = new ArrayList<>();
+            items.add(new ImageBannerEntry("need", "1", "http://" + url+"banner1/1.png"));
+            items.add(new ImageBannerEntry("need2", "2", "http://" + url+"banner2/2.png"));
+            items.add(new ImageBannerEntry("need3", "3", "http://" + url+"banner3/3.png"));
+            return items;
+        }
 }
