@@ -1,24 +1,24 @@
 package com.example.zmj;
-import android.graphics.Color;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
+
+/***create in  2020,6.15 by hans*/
 //本类是主界面中-选择字幕 recycleView的Adapter
 public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.ViewHolder> {
 
-    ArrayList<String> names; //要展示的元素
+    ArrayList<animent> animents; //要展示的元素
 
-   static int selectedPosition = 0;//被选中的字幕，用来设置recycleView的颜色这里默认是第一个
+    static int selectedPosition = 0;//被选中的字幕，用来设置recycleView的颜色这里默认是第一个
     //构造方法
-    public AllAnimentAdapter(ArrayList<String> names) {
-        this.names = names;
+    public AllAnimentAdapter(ArrayList<animent> animents) {
+        this.animents = animents;
     }
 
     @NonNull
@@ -32,7 +32,7 @@ public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        holder.name.setText(names.get(position));
+        holder.name.setText(animents.get(position).getName());
         //为 选择字幕adapterview 的item设置点击事件
         holder.name.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,7 +41,7 @@ public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.Vi
                 selectedPosition = holder.getAdapterPosition();//记录哪个是被选中的字幕、
 
                 //点击后出现一个toast显示名称
-                Toast.makeText(view.getContext(),names.get(selectedPosition),Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(),animents.get(selectedPosition).getName(),Toast.LENGTH_SHORT).show();
 
                 //设置点击后变色,利用接口回调mainActivity中的方法刷新
                 getListener.onClick(position);
@@ -64,7 +64,7 @@ public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return names.size();
+        return animents.size();
     }
 
      class ViewHolder extends RecyclerView.ViewHolder{

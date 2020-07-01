@@ -1,8 +1,8 @@
 package com.example.zmj;
 
+/***by hansong*/
 import android.graphics.Rect;
 import android.view.View;
-
 import androidx.recyclerview.widget.RecyclerView;
 //用来设置Recyclerview的页边距
 public class ChatBorder extends RecyclerView.ItemDecoration {

@@ -10,9 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-//
-//import com.bumptech.glide.Glide;
-//import com.youth.banner.BannerEntry;
 
 /**
  * 创建人 kelin

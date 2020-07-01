@@ -1,13 +1,7 @@
 package com.example.zmj;
-
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-//import android.support.annotation.NonNull;
-//import android.support.annotation.RequiresApi;
-//import android.support.v4.view.ViewPager;
-//
-//import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import android.view.View;
 

@@ -1,17 +1,9 @@
 package com.example.zmj.page;
 
 import androidx.viewpager.widget.ViewPager;
-
 import androidx.annotation.NonNull;
-
 import androidx.annotation.FloatRange;
 import android.view.View;
-/**
- * 描述 添加更新的依赖
- * 修改人 韩淞
- * 修改时间  2020年6月29日
- */
-
 /**
  * 描述 中间大两边缩放变小的 {@link ViewPager.PageTransformer}
  * 创建人 kelin

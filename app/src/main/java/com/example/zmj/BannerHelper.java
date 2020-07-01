@@ -80,7 +80,7 @@ final class BannerHelper implements View.OnTouchListener, ViewPager.OnPageChange
     /**
      * 翻页的间隔时长。
      */
-    private int mPagingIntervalTime = 5000;
+    private int mPagingIntervalTime = 10000;
     /**
      * 存放当前BannerView的适配器。
      */
@@ -128,7 +128,7 @@ final class BannerHelper implements View.OnTouchListener, ViewPager.OnPageChange
     /**
      * 翻页动画减速倍数。
      */
-    private int mMultiple = 1;
+    private int mMultiple = 2;
     /**
      * 用来显示标题的控件。
      */
