@@ -47,13 +47,16 @@ import java.util.List;
         private RecyclerView recyclerViewEpisode;//选第几集的
         private BottomItemAdapter SeasonAdapter;//选第几季的
         private BottomItemAdapter EpisodeAdapter;//选第几集的
-
+        private TextView information;//
+        private TextView detail;
+        private int animentid;//记录点击的是哪部动漫
+        private int seasonid;//记录点击的是第几季
+        private int episodeid;//记录点击的是第几集
 
         @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initAnmis();//把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
         setview();//绘制ui
     }
@@ -107,8 +110,8 @@ import java.util.List;
 
 
                 setupbottom(filted.get(i));
-                Toast.makeText(MainActivity.this,filted.
-                        get(i),Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this,filted.
+//                        get(i),Toast.LENGTH_SHORT).show();
                 SearchList.setVisibility(View.GONE);
                 searchView.clearFocus();//收起软键盘
                 searchView.onActionViewCollapsed();//关闭搜索框;
@@ -122,14 +125,19 @@ import java.util.List;
         AnimentAdapter.notifyDataSetChanged();
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);//设置方向
 
-//接口回调，使AnimentAdapter的方法可以调用主界面的方法，用于改变recycleView中被选中字幕的颜色
+//接口回调，字幕点击的方法 改变item颜色 ，记录被点击的是哪个字母
         AnimentAdapter.setGetListener(new AllAnimentAdapter.GetListener(){
             @Override
             public void onClick(int position) {
 //                把点击的下标回传给适配器 确定下标
                 AnimentAdapter.selectedPosition = position;
                 AnimentAdapter.notifyDataSetChanged();
+                //知道点击的是哪部动漫，用动漫的名称做索引，第几季
                 setupbottom(animents.get(position).getName());
+                animentid =position;//记录被点击的是哪部动漫
+
+                SearchList.setVisibility(View.VISIBLE);
+                recyclerViewEpisode.setVisibility(View.INVISIBLE);//把第几集按钮隐藏
             }
         });
 
@@ -166,7 +174,6 @@ import java.util.List;
 
             LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(this);
             LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this);
-
             linearLayoutManager1.setOrientation(RecyclerView.HORIZONTAL);
             linearLayoutManager2.setOrientation(RecyclerView.HORIZONTAL);
 
@@ -175,22 +182,61 @@ import java.util.List;
             recyclerViewSeason.addItemDecoration(new ChatBorder(20));
             recyclerViewEpisode.addItemDecoration(new ChatBorder(20));
 
+
+            information = (TextView)findViewById(R.id.information);
+            detail = (TextView)findViewById(R.id.detail);
     }
 
         private void setupbottom(String name){//为底部的两个recycle做适配,通过名字做标识
-            for (int i = 0; i < animents.size(); i++){
-                if (animents.get(i).getName().equals(name)){
-                    ArrayList<String> seasons = new ArrayList<>();
+
+
+
+
+            ArrayList<String> seasons = new ArrayList<>();
+            for (int i = 0; i < animents.size(); i++) {
+                if (animents.get(i).getName().equals(name)) {
+                    animentid = i;
                     int season = animents.get(i).getSeason();
                     for (int i1 = 0; i1 < season; i1++) {
-                        seasons.add("第"+(i1+1)+"季");
+                        seasons.add("第" + (i1 + 1) + "季");
                     }
-                    SeasonAdapter = new BottomItemAdapter(seasons);
                 }
+            }
 
+            AnimentAdapter.selectedPosition = animentid;
+            AnimentAdapter.notifyDataSetChanged();
+
+            information.setText(" "+animents.get(animentid).getName()+"    语言："+animents.get(animentid).getLanguage()+"    首映时间: "+animents.get(animentid).getYear()+"    类型："+animents.get(animentid).getType());
+                  detail.setText(animents.get(animentid).getIntro());
+            SeasonAdapter = new BottomItemAdapter(seasons);
+
+                    SeasonAdapter.setGetListener(new BottomItemAdapter.GetListener(){
+                        //接口回调，Season的点击事件，
+                        @Override
+                        public void onClick(int position) {
+                            //点击第几季后出现总共有几集
+                            recyclerViewEpisode.setVisibility(View.VISIBLE);
+                            seasonid = position;
+                            String[] episodes = animents.get(animentid).getEpisode().split("-");
+                            int  a =Integer.parseInt(episodes[position]);
+                            ArrayList<String> episode = new ArrayList();
+                            for (int i1 = 1; i1 <= a; i1++) {
+                                episode.add("第"+i1+"集");
+                            }
+                            EpisodeAdapter = new BottomItemAdapter(episode);
+                            EpisodeAdapter.setGetListener(new BottomItemAdapter.GetListener() {
+                                @Override
+                                public void onClick(int position) {
+                                    episodeid = position;
+                                    Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            recyclerViewEpisode.setAdapter(EpisodeAdapter);
+                        }
+                    });
                 recyclerViewSeason.setAdapter(SeasonAdapter);
             }
-        }
+
 
 
 

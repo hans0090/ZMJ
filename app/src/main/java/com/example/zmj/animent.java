@@ -12,7 +12,7 @@ public class animent {
     private String intro;
     private boolean watched;
 
-    public animent(int id, String name, String language, String year, String type, int season, String episode, String intro, boolean watched) {
+    public animent(int id, String name, String language,String type,String year,  int season, String episode, String intro, boolean watched) {
         this.id = id;
         this.name = name;
         this.language = language;

@@ -39,15 +39,11 @@ public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.Vi
             public void onClick(View view) {
                 //点击后变成红色
                 selectedPosition = holder.getAdapterPosition();//记录哪个是被选中的字幕、
-
                 //点击后出现一个toast显示名称
-                Toast.makeText(view.getContext(),animents.get(selectedPosition).getName(),Toast.LENGTH_SHORT).show();
-
+//                Toast.makeText(view.getContext(),animents.get(selectedPosition).getName(),Toast.LENGTH_SHORT).show();
                 //设置点击后变色,利用接口回调mainActivity中的方法刷新
                 getListener.onClick(position);
                 notifyDataSetChanged();//刷新适配器，当条目发生改变这是必须的
-
-
             }
         });
         //        如果下标和传回来的下标相等 那么确定是点击的条目 把背景设置一下颜色
@@ -88,6 +84,4 @@ public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.Vi
     public void setGetListener(GetListener getListener) {
         this.getListener = getListener;
     }
-
-
 }
