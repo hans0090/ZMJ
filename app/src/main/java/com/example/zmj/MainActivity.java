@@ -6,10 +6,7 @@
     import androidx.recyclerview.widget.RecyclerView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import android.app.slice.Slice;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,19 +14,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
+    import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
     public class MainActivity extends AppCompatActivity {
@@ -49,6 +40,7 @@ import java.util.List;
         private BottomItemAdapter EpisodeAdapter;//选第几集的
         private TextView information;//
         private TextView detail;
+         private FloatingActionButton floatingActionButton;
         private int animentid;//记录点击的是哪部动漫
         private int seasonid;//记录点击的是第几季
         private int episodeid;//记录点击的是第几集
@@ -65,6 +57,7 @@ import java.util.List;
         private ArrayList<String> filted  = new ArrayList<>();
 
         private void setview(){
+
 
         //初始化搜索框
         searchView=(SearchView)findViewById(R.id.search_view);
@@ -123,12 +116,15 @@ import java.util.List;
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(4,StaggeredGridLayoutManager.VERTICAL);
         AnimentAdapter = new AllAnimentAdapter(animents);
         AnimentAdapter.notifyDataSetChanged();
+        AnimentAdapter.selectedPosition = 10000;
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);//设置方向
 
 //接口回调，字幕点击的方法 改变item颜色 ，记录被点击的是哪个字母
         AnimentAdapter.setGetListener(new AllAnimentAdapter.GetListener(){
             @Override
             public void onClick(int position) {
+
+                floatingActionButton.setAlpha(0.1f);
 //                把点击的下标回传给适配器 确定下标
                 AnimentAdapter.selectedPosition = position;
                 AnimentAdapter.notifyDataSetChanged();
@@ -185,7 +181,9 @@ import java.util.List;
 
             information = (TextView)findViewById(R.id.information);
             detail = (TextView)findViewById(R.id.detail);
-    }
+            floatingActionButton  =(FloatingActionButton)findViewById(R.id.start);
+            if (Build.VERSION.SDK_INT>22)floatingActionButton.setBackgroundTintList(getColorStateList(R.color.colorRED));
+        }
 
         private void setupbottom(String name){//为底部的两个recycle做适配,通过名字做标识
 
@@ -206,14 +204,18 @@ import java.util.List;
             AnimentAdapter.selectedPosition = animentid;
             AnimentAdapter.notifyDataSetChanged();
 
-            information.setText(" "+animents.get(animentid).getName()+"    语言："+animents.get(animentid).getLanguage()+"    首映时间: "+animents.get(animentid).getYear()+"    类型："+animents.get(animentid).getType());
+            information.setText(" "+animents.get(animentid).getName()+"  语言："+animents.get(animentid).getLanguage()+"\n 首映时间: "+animents.get(animentid).getYear()+"    类型："+animents.get(animentid).getType());
                   detail.setText(animents.get(animentid).getIntro());
             SeasonAdapter = new BottomItemAdapter(seasons);
+
+
 
                     SeasonAdapter.setGetListener(new BottomItemAdapter.GetListener(){
                         //接口回调，Season的点击事件，
                         @Override
                         public void onClick(int position) {
+
+                            floatingActionButton.setAlpha(0.1f);
                             //点击第几季后出现总共有几集
                             recyclerViewEpisode.setVisibility(View.VISIBLE);
                             seasonid = position;
@@ -227,15 +229,25 @@ import java.util.List;
                             EpisodeAdapter.setGetListener(new BottomItemAdapter.GetListener() {
                                 @Override
                                 public void onClick(int position) {
+
+                                    floatingActionButton.setAlpha(1.0f);
                                     episodeid = position;
-                                    Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
                                 }
                             });
                             recyclerViewEpisode.setAdapter(EpisodeAdapter);
                         }
                     });
                 recyclerViewSeason.setAdapter(SeasonAdapter);
+
+                floatingActionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
+
 
 
 

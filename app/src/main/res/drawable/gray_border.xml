@@ -13,14 +13,14 @@
     <!-- 设置边距 -->
 
     <padding
-        android:bottom="10dp"
-        android:right="14dp"
-        android:left="14dp"
-        android:top="10dp" />
+        android:bottom="6dp"
+        android:right="10dp"
+        android:left="10dp"
+        android:top="6dp" />
     <!-- 设置各边倒角大小 -->
     <corners
-        android:bottomLeftRadius="15dp"
-        android:bottomRightRadius="15dp"
-        android:topLeftRadius="15dp"
-        android:topRightRadius="15dp" />
+        android:bottomLeftRadius="9dp"
+        android:bottomRightRadius="9dp"
+        android:topLeftRadius="9dp"
+        android:topRightRadius="9dp" />
 </shape>

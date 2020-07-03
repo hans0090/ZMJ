@@ -13,7 +13,7 @@ import java.util.List;
 /**create by hans in 2020,7,1*/
 //用来在主界面显示是第几季,和第几集，两个recycle
 public class BottomItemAdapter extends RecyclerView.Adapter<BottomItemAdapter.ViewHolder> {
-    static int selectedPosition = 0;
+    static int selectedPosition = 10000;//用来标识选中的item，
     private List<String> animentList;
 
     static class ViewHolder extends RecyclerView.ViewHolder{
@@ -54,7 +54,7 @@ public class BottomItemAdapter extends RecyclerView.Adapter<BottomItemAdapter.Vi
             holder.textView.setTextColor(holder.textView.getResources().getColor(R.color.colorRED));
             if (Build.VERSION.SDK_INT>15)holder.textView.setBackground(holder.textView.getResources().getDrawable(R.drawable.red_border_01));
 
-        selectedPosition = 0;
+        selectedPosition = 10000;
         }else{
 //            否则的话就全白色初始化背景
             holder.textView.setTextColor(holder.textView.getResources().getColor(R.color.colorGRAY));

@@ -15,7 +15,7 @@ public class AllAnimentAdapter extends RecyclerView.Adapter<AllAnimentAdapter.Vi
 
     ArrayList<animent> animents; //要展示的元素
 
-    static int selectedPosition = 0;//被选中的字幕，用来设置recycleView的颜色这里默认是第一个
+    static int selectedPosition = 10000;//被选中的字幕，用来设置recycleView的颜色这里默认是第一个
     //构造方法
     public AllAnimentAdapter(ArrayList<animent> animents) {
         this.animents = animents;

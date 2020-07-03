@@ -21,7 +21,7 @@ public class ChatBorder extends RecyclerView.ItemDecoration {
         outRect.bottom = (int)(space*0.5);
 
         if (parent.getChildPosition(view) == 0)
-            outRect.top = (int)(space*0.5);;
+            outRect.top = (int)(space*0.27);;
     }
 
 }

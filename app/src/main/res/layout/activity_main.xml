@@ -5,6 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    android:layout_marginTop="12dp"
+    android:textSize="22dp"
+    android:text=" 字幕菌"/>
         <SearchView
             android:id="@+id/search_view"
             app:layout_constraintTop_toTopOf="parent"
@@ -83,6 +91,23 @@
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/start"
+        android:text="开始"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="true"
+        android:clickable="true"
+        android:alpha="0.1"
+        android:src="@drawable/start"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="40dp"
+        android:backgroundTint="@color/colorORG"
+        tools:visibility="visible" />
 
     <ListView
         android:id="@+id/search_list"
