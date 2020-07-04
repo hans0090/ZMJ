@@ -31,6 +31,7 @@ public class GuideACtivity extends AppCompatActivity {
             }
         }).start();
 
+
         /**本线程用于从服务器解析所有字幕的目录的数据*/
         new Thread(new Runnable() {
             @Override
@@ -38,6 +39,7 @@ public class GuideACtivity extends AppCompatActivity {
                 directory = getInfo("http://106.13.35.183/directory.txt");
             }
         }).start();
+
         /**本线程用于在2.5秒后启动主线程,并把目录和banner的标题传到主界面*/
         new Thread(new Runnable() {
             @Override
@@ -51,6 +53,7 @@ public class GuideACtivity extends AppCompatActivity {
                 intent.putExtra("banner",banner);
                 intent.putExtra("directory",directory);
                 Log.e(TAG, directory);
+
                 startActivity(intent);
             }
         }).start();
@@ -61,8 +64,8 @@ public class GuideACtivity extends AppCompatActivity {
 
 
 
-//本方法获取一个字符串类型的url网址，以一个字符串的形式返回网址里面存储的字符。
-    private String getInfo(String url){
+    //本方法获取一个字符串类型的url网址，以一个字符串的形式返回网址里面存储的字符。
+    public static String getInfo(String url){
 
         StringBuilder response = new StringBuilder();
         HttpURLConnection connection = null;
@@ -82,6 +85,19 @@ public class GuideACtivity extends AppCompatActivity {
             }
         }catch (Exception e){
             e.printStackTrace();
+        }finally {
+            if (reader!=null){
+                try{
+                    reader.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection!=null){
+                connection.disconnect();
+            }
+            connection.disconnect();
         }
 
         return response.toString();
@@ -93,4 +109,6 @@ public class GuideACtivity extends AppCompatActivity {
         super.onStop();
         finish();
     }
+
+
 }

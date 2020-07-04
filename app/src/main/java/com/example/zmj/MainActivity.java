@@ -7,9 +7,11 @@
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.content.Intent;
-import android.os.Build;
+    import android.net.Uri;
+    import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
+    import android.provider.Settings;
+    import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,7 +23,12 @@ import android.widget.Toast;
 
     import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
+    import java.io.BufferedReader;
+    import java.io.InputStream;
+    import java.io.InputStreamReader;
+    import java.net.HttpURLConnection;
+    import java.net.URL;
+    import java.util.ArrayList;
 import java.util.List;
     public class MainActivity extends AppCompatActivity {
 
@@ -40,10 +47,12 @@ import java.util.List;
         private BottomItemAdapter EpisodeAdapter;//选第几集的
         private TextView information;//
         private TextView detail;
+
          private FloatingActionButton floatingActionButton;
         private int animentid;//记录点击的是哪部动漫
         private int seasonid;//记录点击的是第几季
         private int episodeid;//记录点击的是第几集
+        public static Intent LastIntent = null;
 
         @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +140,6 @@ import java.util.List;
                 //知道点击的是哪部动漫，用动漫的名称做索引，第几季
                 setupbottom(animents.get(position).getName());
                 animentid =position;//记录被点击的是哪部动漫
-
                 SearchList.setVisibility(View.VISIBLE);
                 recyclerViewEpisode.setVisibility(View.INVISIBLE);//把第几集按钮隐藏
             }
@@ -186,10 +194,6 @@ import java.util.List;
         }
 
         private void setupbottom(String name){//为底部的两个recycle做适配,通过名字做标识
-
-
-
-
             ArrayList<String> seasons = new ArrayList<>();
             for (int i = 0; i < animents.size(); i++) {
                 if (animents.get(i).getName().equals(name)) {
@@ -205,7 +209,7 @@ import java.util.List;
             AnimentAdapter.notifyDataSetChanged();
 
             information.setText(" "+animents.get(animentid).getName()+"  语言："+animents.get(animentid).getLanguage()+"\n 首映时间: "+animents.get(animentid).getYear()+"    类型："+animents.get(animentid).getType());
-                  detail.setText(animents.get(animentid).getIntro());
+            detail.setText(animents.get(animentid).getIntro());
             SeasonAdapter = new BottomItemAdapter(seasons);
 
 
@@ -242,7 +246,7 @@ import java.util.List;
                 floatingActionButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
+                        StartServise();
                     }
                 });
 
@@ -275,5 +279,31 @@ import java.util.List;
             items.add(new ImageBannerEntry(lines[1], "2/3", url+"banner2/2.png"));
             items.add(new ImageBannerEntry(lines[2], "3/3", url+"banner3/3.png"));
             return items;
+        }
+
+
+
+
+
+
+        //用来启动服务
+        private void StartServise(){
+
+            if ( Build.VERSION.SDK_INT>=23){//申请悬浮窗权限
+                if (!Settings.canDrawOverlays(MainActivity.this)){
+                    startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
+                }
+            }
+
+            Intent intent = new Intent(MainActivity.this,MyService.class);
+            Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
+            intent.putExtra("url",url+(animentid+1)+"/"+(seasonid+1)+"/"+(episodeid+1)+".txt");
+            intent.putExtra("name",animents.get(animentid).getName()+" 第"+(seasonid+1)+"季 第"+(episodeid+1)+"集");
+
+
+            if (LastIntent!=null)stopService(LastIntent);
+            startService(intent);
+            LastIntent = intent;
+            finish();
         }
 }
