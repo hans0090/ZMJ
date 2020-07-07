@@ -4,16 +4,18 @@
     import androidx.appcompat.app.AppCompatActivity;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import android.content.Intent;
+    import androidx.annotation.NonNull;
+    import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+    import android.content.Context;
+    import android.content.Intent;
+    import android.media.AudioManager;
     import android.net.Uri;
     import android.os.Build;
-import android.os.Bundle;
+    import android.os.Bundle;
     import android.provider.Settings;
     import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
+    import android.util.Log;
+    import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -33,6 +35,7 @@ import java.util.List;
     public class MainActivity extends AppCompatActivity {
 
         final String url = "http://106.13.35.183/";
+        AudioManager audioManager ;
         private BannerView bannerView;
         private ListView SearchList;
         private SearchView searchView;
@@ -58,8 +61,10 @@ import java.util.List;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
         initAnmis();//把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
         setview();//绘制ui
+
     }
 
 //////////////////////////////////////////////////////
@@ -81,6 +86,7 @@ import java.util.List;
             //当搜索框文字变化时的操作，如果没有文字，清空对话框，如果有文字，在ArrayList中展示与输入相匹配的字幕
             @Override
             public boolean onQueryTextChange(String s) {
+
                 SearchList.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(s)){
                     //利用模式匹配算法，筛选与输入相匹配的字幕，利用filter作为容器
@@ -289,6 +295,11 @@ import java.util.List;
         //用来启动服务
         private void StartServise(){
 
+            if (audioManager.isMusicActive()){
+                Toast.makeText(MainActivity.this,"请关闭后台播放的音乐或视频",Toast.LENGTH_LONG).show();
+                return;
+            }
+
             if ( Build.VERSION.SDK_INT>=23){//申请悬浮窗权限
                 if (!Settings.canDrawOverlays(MainActivity.this)){
                     startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
@@ -298,8 +309,7 @@ import java.util.List;
             Intent intent = new Intent(MainActivity.this,MyService.class);
             Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
             intent.putExtra("url",url+(animentid+1)+"/"+(seasonid+1)+"/"+(episodeid+1)+".txt");
-            intent.putExtra("name",animents.get(animentid).getName()+" 第"+(seasonid+1)+"季 第"+(episodeid+1)+"集");
-
+            intent.putExtra("name",animents.get(animentid).getName()+"\n第"+(seasonid+1)+"季 第"+(episodeid+1)+"集");
 
             if (LastIntent!=null)stopService(LastIntent);
             startService(intent);

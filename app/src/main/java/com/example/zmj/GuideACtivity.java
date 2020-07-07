@@ -27,7 +27,8 @@ public class GuideACtivity extends AppCompatActivity {
             @Override
             public void run() {
                 banner = getInfo("http://106.13.35.183/banner.txt");
-                Log.e(TAG, "onCreate: "+directory);
+
+
             }
         }).start();
 
@@ -37,26 +38,20 @@ public class GuideACtivity extends AppCompatActivity {
             @Override
             public void run() {
                 directory = getInfo("http://106.13.35.183/directory.txt");
-            }
-        }).start();
-
-        /**本线程用于在2.5秒后启动主线程,并把目录和banner的标题传到主界面*/
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2500);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(2000);
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
                 Intent intent = new Intent(GuideACtivity.this,MainActivity.class);
                 intent.putExtra("banner",banner);
                 intent.putExtra("directory",directory);
                 Log.e(TAG, directory);
-
                 startActivity(intent);
+                Log.e(TAG, "onCreate: "+directory);
             }
         }).start();
+
 
     }
 
