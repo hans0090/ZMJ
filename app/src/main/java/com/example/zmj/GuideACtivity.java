@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,8 +46,8 @@ public class GuideACtivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                directory = http.getInfo(GuideACtivity.this.getString(R.string.url)+"directory.txt");
-                banner = http.getInfo(GuideACtivity.this.getString(R.string.url)+"banner.txt");
+                directory = http.getInfo(GuideACtivity.this.getString(R.string.url)+"directory.json");
+                banner = http.getInfo(GuideACtivity.this.getString(R.string.url)+"banner.json");
                 //如果服务器连接失败的话，执行如下操作
                 while (directory.equals("bad connection")||banner.equals("bad connection")){
                     try {
@@ -58,10 +59,11 @@ public class GuideACtivity extends AppCompatActivity {
                     if (count==10){
                         handler.sendEmptyMessage(failConnect);
                     }
-                    if (banner.equals("bad connection"))banner = http.getInfo(GuideACtivity.this.getString(R.string.url)+"banner.txt");
-                    if (directory.equals("bad connection"))directory = http.getInfo(GuideACtivity.this.getString(R.string.url)+"directory.txt");
+                    if (banner.equals("bad connection"))banner = http.getInfo(GuideACtivity.this.getString(R.string.url)+"banner.json");
+                    if (directory.equals("bad connection"))directory = http.getInfo(GuideACtivity.this.getString(R.string.url)+"directory.json");
                 }
                 Intent intent = new Intent(GuideACtivity.this,MainActivity.class);
+                Log.e(TAG, banner);
                 intent.putExtra("banner",banner);
                 intent.putExtra("directory",directory);
                 startActivity(intent);

@@ -90,4 +90,16 @@ public class ImageBannerEntry implements BannerEntry<String> {
     public boolean same(BannerEntry newEntry) {
         return newEntry instanceof ImageBannerEntry && TextUtils.equals(title, newEntry.getTitle()) && TextUtils.equals(subTitle, newEntry.getSubTitle()) && TextUtils.equals(imgUrl, ((ImageBannerEntry) newEntry).getImgUrl());
     }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 }

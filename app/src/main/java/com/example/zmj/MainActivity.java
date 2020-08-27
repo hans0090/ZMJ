@@ -23,6 +23,9 @@
     import android.widget.TextView;
     import android.widget.Toast;
     import com.google.android.material.floatingactionbutton.FloatingActionButton;
+    import com.google.gson.Gson;
+    import com.google.gson.reflect.TypeToken;
+
     import java.util.ArrayList;
     import java.util.List;
 
@@ -184,7 +187,7 @@
 
             information = (TextView)findViewById(R.id.information);
             detail = (TextView)findViewById(R.id.detail);
-            floatingActionButton  =(FloatingActionButton)findViewById(R.id.start);
+            floatingActionButton = (FloatingActionButton)findViewById(R.id.start);
             if (Build.VERSION.SDK_INT>22)floatingActionButton.setBackgroundTintList(getColorStateList(R.color.colorRED));
         }
 
@@ -254,24 +257,34 @@
             Intent intent = getIntent();//从主界面取出加载的banner的 标题。
             String title = intent.getStringExtra("directory");
             String[] animentString = title.split("\n");//每一行对应一条目录
-            animents = new ArrayList<>();
-            for (int i = 0; i < animentString.length; i++) {
-                String[] animen = animentString[i].split("#");
-                animents.add(new animent(Integer.parseInt(animen[0]),animen[1],animen[2],animen[3],animen[4],Integer.parseInt(animen[5]),animen[6],animen[7],false));
-            }
+            Gson gson = new Gson();
+
+            animents = gson.fromJson(intent.getStringExtra("directory"),new TypeToken<ArrayList<animent>>(){}.getType());
+//            animents =
+//            for (int i = 0; i < animentString.length; i++) {
+//                String[] animen = animentString[i].split("#");
+//                animents.add(new animent(Integer.parseInt(animen[0]),animen[1],animen[2],animen[3],animen[4],Integer.parseInt(animen[5]),animen[6],animen[7],false));
+//            }
         }
 
         @NonNull//用于给banner设置内容
         private List<ImageBannerEntry> getImageBannerEntries(){
-            List<ImageBannerEntry> items = new ArrayList<>();
+            Gson gson = new Gson();
+            /////////////////////////////////////
+//            List<ImageBannerEntry> items = new ArrayList<>();
+
             Intent intent = getIntent();//从主界面取出加载的banner的标题。
-            String title = intent.getStringExtra("banner");
-            Log.e("mA", "getImageBannerEntries: "+title);
-            lines = title.split("\n");
-            //第一个参数代表主标题，第二个是副标题，第三个是图片的url
-            items.add(new ImageBannerEntry(lines[0], "1/3", url+"banner1/1.png"));
-            items.add(new ImageBannerEntry(lines[1], "2/3", url+"banner2/2.png"));
-            items.add(new ImageBannerEntry(lines[2], "3/3", url+"banner3/3.png"));
+            List<ImageBannerEntry> items = gson.fromJson(intent.getStringExtra("banner"),new TypeToken<List<ImageBannerEntry>>(){}.getType());
+
+            ////////////////////////
+//            String title = intent.getStringExtra("banner");
+//            Log.e("mA", "getImageBannerEntries: "+title);
+//            lines = title.split("\n");
+//            //第一个参数代表主标题，第二个是副标题，第三个是图片的url
+//            items.add(new ImageBannerEntry(lines[0], "1/3", url+"banner1/1.png"));
+//            items.add(new ImageBannerEntry(lines[1], "2/3", url+"banner2/2.png"));
+//            items.add(new ImageBannerEntry(lines[2], "3/3", url+"banner3/3.png"));
+            ////////////////////////
             return items;
         }
 
