@@ -92,7 +92,7 @@ public class MyService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                subtitle = getInfo(url);
+                subtitle = http.getInfo(url);
             }
         }).start();
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -268,12 +268,6 @@ public class MyService extends Service {
         t.setText("请打开\n" + name);
         t.setMovementMethod(LinkMovementMethod.getInstance());
         t.setOnTouchListener(new FloatingListener());
-        t.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(MyService.this, "" + audioManager.isMusicActive(), Toast.LENGTH_SHORT).show();
-            }
-        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -471,43 +465,6 @@ public class MyService extends Service {
     public MyService(){
     }
 
-
-    //本方法获取一个字符串类型的url网址，以一个字符串的形式返回网址里面存储的字符。
-    public static String getInfo(String url){
-
-        StringBuilder response = new StringBuilder();
-        HttpURLConnection connection = null;
-        BufferedReader reader = null;
-        try {
-            URL Url = new URL(url);
-            connection = (HttpURLConnection) Url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(8000);
-            connection.setReadTimeout(8000);
-            InputStream in1 = connection.getInputStream();
-            //下面对获取到的输入流进行读取
-            reader = new BufferedReader(new InputStreamReader(in1));
-            String line = " \n \n ";
-            while ((line = reader.readLine()) != null) {
-                response.append(line+"\n");
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            if (reader!=null){
-                try{
-                    reader.close();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            if (connection!=null){
-                connection.disconnect();
-            }
-            connection.disconnect();
-        }
-        return response.toString();
-    }
 
     @Nullable
     @Override

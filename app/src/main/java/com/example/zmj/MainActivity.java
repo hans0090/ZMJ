@@ -16,26 +16,23 @@
     import android.text.TextUtils;
     import android.util.Log;
     import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.TextView;
-import android.widget.Toast;
-
+    import android.widget.AdapterView;
+    import android.widget.ArrayAdapter;
+    import android.widget.ListView;
+    import android.widget.SearchView;
+    import android.widget.TextView;
+    import android.widget.Toast;
     import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-    import java.io.BufferedReader;
-    import java.io.InputStream;
-    import java.io.InputStreamReader;
-    import java.net.HttpURLConnection;
-    import java.net.URL;
     import java.util.ArrayList;
-import java.util.List;
+    import java.util.List;
+
+
+
+
     public class MainActivity extends AppCompatActivity {
 
-        final String url = "http://106.13.35.183/";
-        AudioManager audioManager ;
+        String url;
+        AudioManager audioManager;
         private BannerView bannerView;
         private ListView SearchList;
         private SearchView searchView;
@@ -50,29 +47,22 @@ import java.util.List;
         private BottomItemAdapter EpisodeAdapter;//选第几集的
         private TextView information;//
         private TextView detail;
-
-         private FloatingActionButton floatingActionButton;
+        private FloatingActionButton floatingActionButton;
         private int animentid;//记录点击的是哪部动漫
         private int seasonid;//记录点击的是第几季
         private int episodeid;//记录点击的是第几集
         public static Intent LastIntent = null;
-
-        @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
-        initAnmis();//把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
-        setview();//绘制ui
-
-    }
-
-//////////////////////////////////////////////////////
         private ArrayList<String> filted  = new ArrayList<>();
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
+            initAnmis();//把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
+            setview();//绘制ui
+        }
 
         private void setview(){
-
-
         //初始化搜索框
         searchView=(SearchView)findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -94,8 +84,7 @@ import java.util.List;
                     for (int i = 0; i < animents.size(); i++) {
                         if (animents.get(i).getName().contains(s))filted.add(animents.get(i).getName());
                     }
-                    //
-//                     AllAnimentAdapter adapter = new AllAnimentAdapter(animents);
+
                     adapter = new ArrayAdapter<>(MainActivity.this,R.layout.search_item,filted);
                     SearchList.setAdapter(adapter);
                 }else {
@@ -259,11 +248,9 @@ import java.util.List;
             }
 
 
-
-
-
         //把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
         private void initAnmis(){
+            url = MainActivity.this.getString(R.string.url);
             Intent intent = getIntent();//从主界面取出加载的banner的 标题。
             String title = intent.getStringExtra("directory");
             String[] animentString = title.split("\n");//每一行对应一条目录
@@ -277,8 +264,9 @@ import java.util.List;
         @NonNull//用于给banner设置内容
         private List<ImageBannerEntry> getImageBannerEntries(){
             List<ImageBannerEntry> items = new ArrayList<>();
-            Intent intent = getIntent();//从主界面取出加载的banner的 标题。
+            Intent intent = getIntent();//从主界面取出加载的banner的标题。
             String title = intent.getStringExtra("banner");
+            Log.e("mA", "getImageBannerEntries: "+title);
             lines = title.split("\n");
             //第一个参数代表主标题，第二个是副标题，第三个是图片的url
             items.add(new ImageBannerEntry(lines[0], "1/3", url+"banner1/1.png"));
@@ -286,11 +274,6 @@ import java.util.List;
             items.add(new ImageBannerEntry(lines[2], "3/3", url+"banner3/3.png"));
             return items;
         }
-
-
-
-
-
 
         //用来启动服务
         private void StartServise(){
