@@ -63,7 +63,7 @@ public class GuideACtivity extends AppCompatActivity {
                     if (directory.equals("bad connection"))directory = http.getInfo(GuideACtivity.this.getString(R.string.url)+"directory.json");
                 }
                 Intent intent = new Intent(GuideACtivity.this,MainActivity.class);
-                Log.e(TAG, banner);
+//                Log.e(TAG, banner);
                 intent.putExtra("banner",banner);
                 intent.putExtra("directory",directory);
                 startActivity(intent);

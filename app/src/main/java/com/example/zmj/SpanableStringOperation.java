@@ -50,7 +50,7 @@ public class SpanableStringOperation {
                 @Override
                 public void onClick(@NonNull View view) {
                     super.onClick(view);
-                    if(wordList.containsKey(word2))Toast.makeText(service, "-"+word2+ ":"+wordList.get(word2), Toast.LENGTH_LONG).show();
+                    if(wordList.containsKey(word2))Toast.makeText(service, word2+ ":"+wordList.get(word2), Toast.LENGTH_LONG).show();
                 }
             };
             sstring.setSpan(csp, blank[i], blank[1 + i], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

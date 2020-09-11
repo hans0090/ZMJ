@@ -12,6 +12,7 @@
     import android.net.Uri;
     import android.os.Build;
     import android.os.Bundle;
+    import android.os.Message;
     import android.provider.Settings;
     import android.text.TextUtils;
     import android.util.Log;
@@ -51,6 +52,10 @@
         private TextView information;//
         private TextView detail;
         private FloatingActionButton floatingActionButton;
+        private final int openFloat = 10203;
+        private final int deliverUrl = 10204;
+        private final int deliverName = 10205;
+
         private int animentid;//记录点击的是哪部动漫
         private int seasonid;//记录点击的是第几季
         private int episodeid;//记录点击的是第几集
@@ -60,6 +65,11 @@
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+
+
+            Intent intent = new Intent(MainActivity.this,MyService.class);
+            startService(intent);
+
             audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
             initAnmis();//把所有字幕名称添加到ArrayList中用于搜索和主界面的初始化
             setview();//绘制ui
@@ -167,9 +177,6 @@
                 startActivity(intent);
             }
         });
-
-
-
 //        选中动漫后，底部的两个recycleview.
             recyclerViewSeason =(RecyclerView) findViewById(R.id.selected_season);
             recyclerViewEpisode=(RecyclerView) findViewById(R.id.selected_episode);
@@ -183,7 +190,6 @@
             recyclerViewEpisode.setLayoutManager(linearLayoutManager2);
             recyclerViewSeason.addItemDecoration(new ChatBorder(20));
             recyclerViewEpisode.addItemDecoration(new ChatBorder(20));
-
 
             information = (TextView)findViewById(R.id.information);
             detail = (TextView)findViewById(R.id.detail);
@@ -244,10 +250,9 @@
                 floatingActionButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        StartServise();
+                        Opensubtitle();
                     }
                 });
-
             }
 
 
@@ -256,7 +261,7 @@
             url = MainActivity.this.getString(R.string.url);
             Intent intent = getIntent();//从主界面取出加载的banner的 标题。
             String title = intent.getStringExtra("directory");
-            String[] animentString = title.split("\n");//每一行对应一条目录
+//            String[] animentString = title.split("\n");//每一行对应一条目录
             Gson gson = new Gson();
 
             animents = gson.fromJson(intent.getStringExtra("directory"),new TypeToken<ArrayList<animent>>(){}.getType());
@@ -288,8 +293,8 @@
             return items;
         }
 
-        //用来启动服务
-        private void StartServise(){
+        //用来开启悬浮窗
+        private void Opensubtitle(){
 
             if (audioManager.isMusicActive()){
                 Toast.makeText(MainActivity.this,"请关闭后台播放的音乐或视频",Toast.LENGTH_LONG).show();
@@ -302,14 +307,39 @@
                 }
             }
 
-            Intent intent = new Intent(MainActivity.this,MyService.class);
             Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
-            intent.putExtra("url",url+(animentid+1)+"/"+(seasonid+1)+"/"+(episodeid+1)+".txt");
-            intent.putExtra("name",animents.get(animentid).getName()+"\n第"+(seasonid+1)+"季 第"+(episodeid+1)+"集");
 
-            if (LastIntent!=null)stopService(LastIntent);
-            startService(intent);
-            LastIntent = intent;
-            finish();
+            Message mUrl = MyService.handler.obtainMessage();
+            mUrl.what = deliverUrl;
+            mUrl.obj = url+(animentid+1)+"/"+(seasonid+1)+"/"+(episodeid+1)+".txt";
+            MyService.handler.sendMessage(mUrl);
+
+            Message mName = MyService.handler.obtainMessage();
+            mName.what = deliverName;
+            mName.obj = animents.get(animentid).getName()+"\n第"+(seasonid+1)+"季 第"+(episodeid+1)+"集";
+            MyService.handler.sendMessage(mName);
+
+            MyService.handler.sendEmptyMessage(openFloat);
+
+
+//            try {
+//                if (LastIntent!=null)stopService(LastIntent);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+
+
+
+
+
+
+
+            //回到主界面
+            Intent intent1 = new Intent();
+            intent1.setAction(Intent.ACTION_MAIN);// "android.intent.action.MAIN"
+            intent1.addCategory(Intent.CATEGORY_HOME); //"android.intent.category.HOME"
+            startActivity(intent1);
         }
+
+
 }
