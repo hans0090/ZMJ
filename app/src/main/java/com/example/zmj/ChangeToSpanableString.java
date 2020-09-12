@@ -11,9 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.zmj.NolineClick;
-import com.example.zmj.SpanableStringOperation;
-
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
@@ -55,11 +52,6 @@ public class ChangeToSpanableString {
             }
         }
 
-        for (int i = 0; i < wordNum; i++) {
-            Log.e(TAG, String.valueOf(blank[i]));
-        }
-
-
 
 
         for (int i1 = 0; i1 < wordNum; i1++) {
@@ -70,7 +62,6 @@ public class ChangeToSpanableString {
                 @Override
                 public void onClick(@NonNull View view) {
                     super.onClick(view);
-                    Log.e(TAG,word);
                     Toast.makeText(context,word1+":"+wordList.get(word1),Toast.LENGTH_SHORT).show();
                 }
             };

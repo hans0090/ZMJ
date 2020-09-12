@@ -48,7 +48,9 @@ import java.util.Map;
 
 public class MyService extends Service {
 
+
     private static final String TAG = "MyServise";
+    int firstTime;
     final int openSubtitle = 1;
     final int starMessage = 2;
     final int stopMessage = 3;
@@ -81,17 +83,20 @@ public class MyService extends Service {
     EditText skiptotime;
     Button addsec;
     Button subsec;
+    Button shield;
+    TextView bottom1;
 
 
 
     WindowManager windowManager;
+
     WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT, 0, 0,
             PixelFormat.TRANSPARENT);
+
     WindowManager.LayoutParams layoutParams2 = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT, 0, 0,
             PixelFormat.TRANSPARENT);
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -104,8 +109,13 @@ public class MyService extends Service {
     }
 
 
-    private void openSubtitle() {
 
+    private void initGadget() {
+
+        TextView t = popop.findViewById(R.id.AnimentName);
+        t.setText("请打开\n" + name);
+        t.setMovementMethod(LinkMovementMethod.getInstance());
+        t.setOnTouchListener(new FloatingListener());
 
         subtitleText = subtitleWindow.findViewById(R.id.subtitle);
         subtitleText.setMovementMethod(LinkMovementMethod.getInstance());
@@ -114,6 +124,10 @@ public class MyService extends Service {
         skiptotime = subtitleWindow.findViewById(R.id.skiptotime);
         addsec = subtitleWindow.findViewById(R.id.addsecond);
         subsec = subtitleWindow.findViewById(R.id.subsecond);
+        shield = subtitleWindow.findViewById(R.id.shield);
+        bottom1 = subtitleWindow.findViewById(R.id.bottom1);
+
+
         addsec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,6 +147,7 @@ public class MyService extends Service {
         skiptotime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
             }
         });
 
@@ -142,11 +157,26 @@ public class MyService extends Service {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i== EditorInfo.IME_ACTION_DONE){
                     String time = skiptotime.getText().toString();
+
                     //输入的时间是多少毫秒
-                    long mile;
-                    if (time.length()<3)
-                        mile = Long.parseLong(time)*1000;
-                    else mile=Long.parseLong(time.substring(0,2))*60000+Long.parseLong(time.substring(2))*1000;
+                    long mile = 0;
+
+
+                    try {
+
+                        if (isdigit(time)){
+                            if (time.length()<3)
+                                mile = Long.parseLong(time)*1000;
+                            else mile = Long.parseLong(time.substring(0,time.length()-2))*60000+Long.parseLong(time.substring(time.length()-2,time.length()))*1000;
+                        }else {
+                            String[] HourMinute = time.split(":");
+                            mile = Long.parseLong(HourMinute[0])*60000+Long.parseLong(HourMinute[0])*1000;
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
 
                     start -=((mile)-(stopmile-start));
 
@@ -156,6 +186,17 @@ public class MyService extends Service {
                 windowManager.updateViewLayout(subtitleWindow,layoutParams2);
 
                 return false;
+            }
+        });
+
+        shield.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bottom1.getVisibility() == View.VISIBLE){
+                    bottom1.setVisibility(View.GONE);
+                }else {
+                    bottom1.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -204,6 +245,7 @@ public class MyService extends Service {
 
     //打开
     private void showIndicateWindow(){
+
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         popop = layoutInflater.inflate(R.layout.floating_window, null);
@@ -219,7 +261,6 @@ public class MyService extends Service {
         layoutParams.gravity = Gravity.CENTER | Gravity.RIGHT;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         windowManager.addView(popop, layoutParams);
-        Log.e(TAG, "add popop success ");
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -232,7 +273,7 @@ public class MyService extends Service {
         layoutParams2.gravity = Gravity.CENTER | Gravity.RIGHT;
         layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 
-        Log.e(TAG, "add subtitle success ");
+
         windowManager.addView(subtitleWindow, layoutParams2);
 
         subtitleWindow.setVisibility(View.INVISIBLE);
@@ -244,33 +285,29 @@ public class MyService extends Service {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case openSubtitle://打开字幕播放窗口
-                            popop.setVisibility(View.INVISIBLE);
-                            subtitleWindow.setVisibility(View.VISIBLE);
+                        popop.setVisibility(View.INVISIBLE);
+                        subtitleWindow.setVisibility(View.VISIBLE);
                         windowManager.updateViewLayout(subtitleWindow, layoutParams2);
 
                         makeSrtlist();
                         showSubtitleText();
+                        Toast.makeText(MyService.this,"稍等片刻，首行字幕开始于"+firstTime/60000+"分"+(firstTime%60000)/1000+"秒",Toast.LENGTH_LONG).show();
                         break;
 
                     case openFloat:
                         popop.setVisibility(View.VISIBLE);
                         subtitleWindow.setVisibility(View.INVISIBLE);
+                        initGadget();
 
-                        TextView t = popop.findViewById(R.id.AnimentName);
-                        t.setText("请打开\n" + name);
-                        t.setMovementMethod(LinkMovementMethod.getInstance());
-                        t.setOnTouchListener(new FloatingListener());
-
-                         openSubtitle();
 
                     case starMessage:
 
                         layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
                         windowManager.updateViewLayout(subtitleWindow,layoutParams2);
-
                         addsec.setVisibility(View.GONE);
                         subsec.setVisibility(View.GONE);
                         skiptotime.setVisibility(View.GONE);
+                        shield.setVisibility(View.GONE);
                         if (Build.VERSION.SDK_INT>15)subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorTransparent));
                         break;
 
@@ -280,6 +317,22 @@ public class MyService extends Service {
                         addsec.setVisibility(View.VISIBLE);
                         subsec.setVisibility(View.VISIBLE);
                         skiptotime.setVisibility(View.VISIBLE);
+                        shield.setVisibility(View.VISIBLE);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    skiptotime.setTextColor(Color.RED);
+                                    Thread.sleep(6000);
+                                    skiptotime.setTextColor(Color.BLACK);
+                                    layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+                                    windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+
                         break;
 
                     case refreshedit:
@@ -302,7 +355,6 @@ public class MyService extends Service {
                             @Override
                             public void run() {
                                 subtitle = http.getInfo(url);
-
                             }
                         }).start();
 
@@ -318,6 +370,7 @@ public class MyService extends Service {
         srtList = new ArrayList<>();
 
         String[] sentences = subtitle.split("\n");
+        firstTime  = 99999999;
         for (int i = 0; i < sentences.length; i++) {
             if (i % 4 == 1) {
                 try {
@@ -336,8 +389,13 @@ public class MyService extends Service {
                     //--------------------------------------------
                     int endTime = (end_hour * 3600 + end_mintue * 60 + end_scend)
                             * 1000 + end_milli;
-//                        Log.e(TAG, ""+(endTime-beginTime));
+
+                    if (sentences[i+1].length()>1)
                     srtList.add(new srt(sentences[i + 1], beginTime, endTime));
+
+                    if (beginTime<firstTime&&sentences[i + 1].length()>3){ //最早记录开始时间
+                        firstTime = beginTime;
+                    }
                 } catch (Exception e) {
 //                    Toast.makeText(MyService.this,String.valueOf(i),Toast.LENGTH_SHORT).show();
                     continue;
@@ -379,10 +437,18 @@ public class MyService extends Service {
                         }
                     }
 
-                    if (canwrite){
+                    if (canwrite){//刷新编辑框
                         Message message = handler.obtainMessage();
                         message.what = refreshedit;
-                                message.obj=""+(passTime/1000)/60+":"+(passTime/1000)%60;
+                        String sec = "";
+                        if ((passTime/1000)%60<10){
+                            sec = "0" + (passTime/1000)%60;
+                        }
+
+                        else {
+                            sec = "" + (passTime/1000)%60;
+                        }
+                        message.obj=""+(passTime/1000)/60 + sec;
                         handler.sendMessage(message);
                     }
 
@@ -477,7 +543,6 @@ public class MyService extends Service {
                 case MotionEvent.ACTION_UP:
                     mStopY = (int) event.getY();
                     mStopTouchY = (int) event.getRawY();
-//                    Log.d(TAG, String.valueOf(i));
                     if (i > 3) {
                         isMove = true;
                     }
@@ -493,25 +558,22 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy(){
-
-
-        windowManager.removeView(popop);
-        windowManager.removeView(subtitleWindow);
-
-        Log.e(TAG, "remove popop success ");
-        Log.e(TAG, "remove subtitle success ");
-
         super.onDestroy();
     }
-
-
-    public MyService(){
-    }
-
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    public boolean isdigit(String str) {
+        for (int i1 = 0; i1 < str.length(); i1++) {
+            if (!Character.isDigit(str.charAt(i1))){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
