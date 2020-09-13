@@ -462,7 +462,7 @@ public class MyService extends Service {
                     }else {
                         if (canwrite == false){//开始时执行以下操作
                             canwrite = true;
-                            start+=System.currentTimeMillis()-stopmile;
+                            start+=System.currentTimeMillis()-stopmile+40;
                             handler.sendEmptyMessage(starMessage);
                         }
                     }
