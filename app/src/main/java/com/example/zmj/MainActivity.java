@@ -6,15 +6,25 @@
     import androidx.recyclerview.widget.RecyclerView;
     import androidx.annotation.NonNull;
     import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+    import android.app.AlertDialog;
     import android.content.Context;
+    import android.content.DialogInterface;
     import android.content.Intent;
+    import android.content.SharedPreferences;
     import android.media.AudioManager;
     import android.net.Uri;
     import android.os.Build;
     import android.os.Bundle;
     import android.os.Message;
+    import android.preference.PreferenceManager;
     import android.provider.Settings;
+    import android.text.SpannableString;
+    import android.text.SpannableStringBuilder;
+    import android.text.Spanned;
     import android.text.TextUtils;
+    import android.text.method.LinkMovementMethod;
+    import android.text.style.ClickableSpan;
     import android.util.Log;
     import android.view.View;
     import android.widget.AdapterView;
@@ -51,6 +61,10 @@
         private BottomItemAdapter EpisodeAdapter;//选第几集的
         private TextView information;//
         private TextView detail;
+        private TextView contact;
+        private TextView protocal;
+
+        private AlertDialog.Builder builder;
         private FloatingActionButton floatingActionButton;
         private final int openFloat = 10203;
         private final int deliverUrl = 10204;
@@ -61,6 +75,86 @@
         private int episodeid;//记录点击的是第几集
         public static Intent LastIntent = null;
         private ArrayList<String> filted  = new ArrayList<>();
+
+        @Override
+        protected void onStart() {
+            super.onStart();
+
+
+
+
+            final SharedPreferences prefe = MainActivity.this.getSharedPreferences(KEYGUARD_SERVICE,0);
+
+            if (!prefe.getBoolean("floating",false)){
+
+                builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("开启悬浮窗");
+                builder.setMessage("软件需要悬浮窗权限才能正常运行，点击确定前往开启");
+                builder.setCancelable(false);
+
+
+                builder.setPositiveButton("同意",new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        if ( Build.VERSION.SDK_INT>=23){//申请悬浮窗权限
+                            if (!Settings.canDrawOverlays(MainActivity.this)){
+                                startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
+                            }
+                        }
+                        SharedPreferences.Editor editor = prefe.edit();
+                        editor.putBoolean("floating",true);
+                        editor.commit();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+
+
+            if (!prefe.getBoolean("aggree",false)){
+
+                builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("服务协议和隐私政策");
+                builder.setMessage(MainActivity.this.getString(R.string.intro));
+                builder.setCancelable(false);
+
+
+                builder.setPositiveButton("同意",new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        SharedPreferences.Editor editor = prefe.edit();
+                        editor.putBoolean("aggree",true);
+                        editor.commit();
+                    }
+                });
+
+                builder.setNeutralButton("查看《用户协议》与《隐私政策》", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(MainActivity.this,agreement.class);
+                        startActivity(intent);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("暂不使用", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+
+
+
+
+        }
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -181,6 +275,9 @@
             recyclerViewSeason =(RecyclerView) findViewById(R.id.selected_season);
             recyclerViewEpisode=(RecyclerView) findViewById(R.id.selected_episode);
 
+
+
+
             LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(this);
             LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this);
             linearLayoutManager1.setOrientation(RecyclerView.HORIZONTAL);
@@ -193,6 +290,37 @@
 
             information = (TextView)findViewById(R.id.information);
             detail = (TextView)findViewById(R.id.detail);
+
+
+            contact = (TextView)findViewById(R.id.contact);
+            contact.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("联系我们");
+                    builder.setMessage("非常感谢您使用字幕菌，在使用过程中您遇到什么问题，或者有任何意见或者建议，可以联系我\n联系方式\nhs678@foxmail.com");
+                    builder.setCancelable(true);
+
+                    builder.setPositiveButton("同意",new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+
+            protocal = (TextView)findViewById(R.id.protocal);
+            protocal.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(MainActivity.this,agreement.class);
+                    startActivity(intent);
+                }
+            });
+
             floatingActionButton = (FloatingActionButton)findViewById(R.id.start);
             if (Build.VERSION.SDK_INT>22)floatingActionButton.setBackgroundTintList(getColorStateList(R.color.colorRED));
         }
@@ -281,15 +409,6 @@
             Intent intent = getIntent();//从主界面取出加载的banner的标题。
             List<ImageBannerEntry> items = gson.fromJson(intent.getStringExtra("banner"),new TypeToken<List<ImageBannerEntry>>(){}.getType());
 
-            ////////////////////////
-//            String title = intent.getStringExtra("banner");
-//            Log.e("mA", "getImageBannerEntries: "+title);
-//            lines = title.split("\n");
-//            //第一个参数代表主标题，第二个是副标题，第三个是图片的url
-//            items.add(new ImageBannerEntry(lines[0], "1/3", url+"banner1/1.png"));
-//            items.add(new ImageBannerEntry(lines[1], "2/3", url+"banner2/2.png"));
-//            items.add(new ImageBannerEntry(lines[2], "3/3", url+"banner3/3.png"));
-            ////////////////////////
             return items;
         }
 
@@ -301,13 +420,42 @@
                 return;
             }
 
+            final SharedPreferences prefe = MainActivity.this.getSharedPreferences(KEYGUARD_SERVICE,0);
+            if (!prefe.getBoolean("tutorial1",false)){
+                builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("开始运行");
+                builder.setMessage("如果主界面关闭，并且右侧出现一个白色悬浮提示框，证明软件开启成功。此时不要在后台开启其他音乐，直接在播放器里打开想要看的影片即可。");
+                builder.setCancelable(false);
+                builder.setPositiveButton("知道了，下次不用再提示了",new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        SharedPreferences.Editor editor = prefe.edit();
+                        editor.putBoolean("tutorial1",true);
+                        editor.commit();
+                        MyService.handler.sendEmptyMessage(openFloat);
+
+
+                        //回到主界面
+                        Intent intent1 = new Intent();
+                        intent1.setAction(Intent.ACTION_MAIN);// "android.intent.action.MAIN"
+                        intent1.addCategory(Intent.CATEGORY_HOME); //"android.intent.category.HOME"
+                        startActivity(intent1);
+
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+            }
+
+
+
             if ( Build.VERSION.SDK_INT>=23){//申请悬浮窗权限
                 if (!Settings.canDrawOverlays(MainActivity.this)){
                     startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
                 }
             }
-
-            Toast.makeText(MainActivity.this,""+animents.get(animentid).getName()+" "+(animentid+1)+" "+(seasonid+1)+" "+(episodeid+1),Toast.LENGTH_SHORT).show();
 
             Message mUrl = MyService.handler.obtainMessage();
             mUrl.what = deliverUrl;
@@ -319,26 +467,15 @@
             mName.obj = animents.get(animentid).getName()+"\n第"+(seasonid+1)+"季 第"+(episodeid+1)+"集";
             MyService.handler.sendMessage(mName);
 
-            MyService.handler.sendEmptyMessage(openFloat);
+            if (prefe.getBoolean("tutorial1",false)){
+                MyService.handler.sendEmptyMessage(openFloat);
+                //回到主界面
+                Intent intent1 = new Intent();
+                intent1.setAction(Intent.ACTION_MAIN);// "android.intent.action.MAIN"
+                intent1.addCategory(Intent.CATEGORY_HOME); //"android.intent.category.HOME"
+                startActivity(intent1);
 
-
-//            try {
-//                if (LastIntent!=null)stopService(LastIntent);
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-
-
-
-
-
-
-
-            //回到主界面
-            Intent intent1 = new Intent();
-            intent1.setAction(Intent.ACTION_MAIN);// "android.intent.action.MAIN"
-            intent1.addCategory(Intent.CATEGORY_HOME); //"android.intent.category.HOME"
-            startActivity(intent1);
+            }
         }
 
 

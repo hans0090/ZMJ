@@ -6,17 +6,15 @@
     android:layout_height="match_parent">
 
     <TextView
-
-        android:background="@color/colorWHITE2"
         android:id="@+id/subtitle"
-        android:textSize="35dp"
+        android:textSize="40dp"
         android:gravity="center"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-    android:layout_width="match_parent"
-    android:layout_height="130dp"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
         />
 
     <TextView
@@ -32,29 +30,58 @@
         android:background="@color/colorGRAY"
         />
 
+
+
+
+    <EditText
+        android:id="@+id/skiptotime"
+        android:background="@color/colorWHITE2"
+        app:layout_constraintTop_toBottomOf="@+id/subtitle"
+        app:layout_constraintLeft_toLeftOf="@id/bottom1"
+        android:layout_width="74dp"
+        android:inputType="time"
+        android:maxLines="1"
+        android:textColor="@color/colorBLACK"
+        android:textSize="25dp"
+        android:gravity="center"
+        android:layout_height="40dp"/>
+    <TextView
+        android:id="@+id/hint1"
+        android:background="@color/colorBLACK"
+        android:textColor="@color/colorWHITE"
+        android:text="点击这里跳转"
+        app:layout_constraintTop_toBottomOf="@+id/subtitle"
+        app:layout_constraintLeft_toLeftOf="@id/bottom1"
+        android:layout_width="74dp"
+        android:layout_height="11dp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="8dp"/>
+
+    <TextView
+        android:id="@+id/hint2"
+        android:background="@color/colorBLACK"
+        android:textColor="@color/colorWHITE"
+        android:text="暂停后5秒内可跳转"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/subtitle"
+        app:layout_constraintLeft_toLeftOf="@id/bottom1"
+        android:layout_width="74dp"
+        android:layout_height="11dp"
+        android:gravity="center"
+        android:textSize="8dp"/>
+
     <Button
         android:id="@+id/subsecond"
-        android:layout_width="74dp"
-        app:layout_constraintLeft_toLeftOf="@id/bottom1"
         app:layout_constraintTop_toBottomOf="@+id/subtitle"
+        app:layout_constraintLeft_toRightOf="@id/skiptotime"
+        android:layout_width="74dp"
         android:layout_height="40dp"
         android:text="-0.5s"/>
 
-    <EditText
-        android:background="@color/colorWHITE2"
-        app:layout_constraintTop_toBottomOf="@+id/subtitle"
-        android:id="@+id/skiptotime"
-        app:layout_constraintLeft_toRightOf="@id/subsecond"
-        android:layout_width="67dp"
-        android:maxLines="1"
-        android:textColor="@color/colorBLACK"
-        android:textSize="27dp"
-        android:inputType="time"
-        android:gravity="center"
-        android:layout_height="40dp"/>
     <Button
         android:id="@+id/addsecond"
-        app:layout_constraintLeft_toRightOf="@id/skiptotime"
+        app:layout_constraintLeft_toRightOf="@id/subsecond"
         app:layout_constraintTop_toBottomOf="@+id/subtitle"
         android:layout_width="74dp"
         android:layout_height="40dp"

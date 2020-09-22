@@ -8,7 +8,7 @@
     <color name="colorGRAY">#4F4F4F</color>
     <color name="colorWHITE">#FFFFFF</color>
     <color name="colorBLACK">#0F0F0F</color>
-    <color name="colorWHITE2">#40FFFFFF</color>
+    <color name="colorWHITE2">#99FFFFFF</color>
     <color name="colorTransparent">#00FFFFFF</color>
 
 </resources>

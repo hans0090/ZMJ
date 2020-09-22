@@ -13,14 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".agreement"></activity>
+
         <service
             android:name=".MyService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
-            android:launchMode="singleTask"
-            android:name=".GuideACtivity">
+            android:name=".GuideACtivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,14 +30,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Web" />
-
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTask">
-
-        </activity>
-
-
+            android:launchMode="singleTask"></activity>
     </application>
 
 </manifest>

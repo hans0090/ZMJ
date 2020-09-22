@@ -1,5 +1,6 @@
 package com.example.zmj;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -56,11 +57,13 @@ public class MyService extends Service {
     final int stopMessage = 3;
     final int refreshedit = 4;
     final int refreshSubtitle = 5;
+    final int movefocus = 65;
 
     private AudioManager audioManager;
     private String url;
     private String name;
     private String subtitle;
+    int last = 0;
 
     private Date date = new Date();
     private long start;
@@ -80,6 +83,8 @@ public class MyService extends Service {
     View popop;//
     View subtitleWindow;
     TextView subtitleText;
+    TextView hint1;
+    TextView hint2;
     EditText skiptotime;
     Button addsec;
     Button subsec;
@@ -126,6 +131,9 @@ public class MyService extends Service {
         subsec = subtitleWindow.findViewById(R.id.subsecond);
         shield = subtitleWindow.findViewById(R.id.shield);
         bottom1 = subtitleWindow.findViewById(R.id.bottom1);
+        hint1 = subtitleWindow.findViewById(R.id.hint1);
+        hint2 = subtitleWindow.findViewById(R.id.hint2);
+        hint1.setVisibility(View.GONE);
 
 
         addsec.setOnClickListener(new View.OnClickListener() {
@@ -141,29 +149,21 @@ public class MyService extends Service {
             }
         });
 
-
-
-
-        skiptotime.setOnClickListener(new View.OnClickListener() {
+        skiptotime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View view) {
-
+            public void onFocusChange(View view, boolean b) {
+                if (skiptotime.hasFocus())skiptotime.setText("");
             }
         });
-
 
         skiptotime.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i== EditorInfo.IME_ACTION_DONE){
                     String time = skiptotime.getText().toString();
-
                     //输入的时间是多少毫秒
                     long mile = 0;
-
-
                     try {
-
                         if (isdigit(time)){
                             if (time.length()<3)
                                 mile = Long.parseLong(time)*1000;
@@ -172,18 +172,12 @@ public class MyService extends Service {
                             String[] HourMinute = time.split(":");
                             mile = Long.parseLong(HourMinute[0])*60000+Long.parseLong(HourMinute[0])*1000;
                         }
-
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-
-
                     start -=((mile)-(stopmile-start));
 
                 }
-
-                layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                windowManager.updateViewLayout(subtitleWindow,layoutParams2);
 
                 return false;
             }
@@ -199,6 +193,8 @@ public class MyService extends Service {
                 }
             }
         });
+
+
 
 
         new Thread(new Runnable() {
@@ -288,7 +284,6 @@ public class MyService extends Service {
                         popop.setVisibility(View.INVISIBLE);
                         subtitleWindow.setVisibility(View.VISIBLE);
                         windowManager.updateViewLayout(subtitleWindow, layoutParams2);
-
                         makeSrtlist();
                         showSubtitleText();
                         Toast.makeText(MyService.this,"稍等片刻，首行字幕开始于"+firstTime/60000+"分"+(firstTime%60000)/1000+"秒",Toast.LENGTH_LONG).show();
@@ -299,44 +294,59 @@ public class MyService extends Service {
                         subtitleWindow.setVisibility(View.INVISIBLE);
                         initGadget();
 
-
                     case starMessage:
-
+                        handler.sendEmptyMessage(movefocus);
                         layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
                         windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                        hint1.setVisibility(View.GONE);
+                        hint2.setVisibility(View.VISIBLE);
                         addsec.setVisibility(View.GONE);
                         subsec.setVisibility(View.GONE);
-                        skiptotime.setVisibility(View.GONE);
+//                        skiptotime.setVisibility(View.GONE);
                         shield.setVisibility(View.GONE);
                         if (Build.VERSION.SDK_INT>15)subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorTransparent));
                         break;
 
                     case stopMessage:
-                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
-                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                        hint1.setVisibility(View.VISIBLE);
+                        hint2.setVisibility(View.GONE);
                         addsec.setVisibility(View.VISIBLE);
                         subsec.setVisibility(View.VISIBLE);
                         skiptotime.setVisibility(View.VISIBLE);
                         shield.setVisibility(View.VISIBLE);
+                        skiptotime.setTextColor(Color.RED);
+                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                        if (Build.VERSION.SDK_INT>15)subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorWHITE2));
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    skiptotime.setTextColor(Color.RED);
-                                    Thread.sleep(6000);
-                                    skiptotime.setTextColor(Color.BLACK);
-                                    layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                                    windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                                    last ++;
+                                    int a = last;
+                                        Thread.sleep(8000);
+
+                                        if (last == a)
+                                        handler.sendEmptyMessage(movefocus);
+
                                 }catch (Exception e){
                                     e.printStackTrace();
                                 }
                             }
                         }).start();
-
                         break;
 
                     case refreshedit:
                         skiptotime.setText((String)msg.obj);
+//                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                        break;
+
+                    case movefocus:
+                        hint2.setVisibility(View.VISIBLE);
+                        skiptotime.setTextColor(Color.BLACK);
+                        hint1.setVisibility(View.GONE);
+                        subtitleWindow.clearFocus();
+                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
                         windowManager.updateViewLayout(subtitleWindow,layoutParams2);
                         break;
 
@@ -357,9 +367,11 @@ public class MyService extends Service {
                                 subtitle = http.getInfo(url);
                             }
                         }).start();
+                        break;
 
                     case deliverName:
                         name = (String)msg.obj;
+                        break;
                 }
             }
         };
@@ -427,6 +439,8 @@ public class MyService extends Service {
                             }
                             break;
                         }
+
+
                         if (i1==srtList.size()-1){//如果没有对应的时间的字幕，则清空
                             if (canwrite){
                                 Message message = handler.obtainMessage();
@@ -448,7 +462,7 @@ public class MyService extends Service {
                         else {
                             sec = "" + (passTime/1000)%60;
                         }
-                        message.obj=""+(passTime/1000)/60 + sec;
+                        message.obj=""+(passTime/1000)/60 +":"+ sec;
                         handler.sendMessage(message);
                     }
 
@@ -462,7 +476,7 @@ public class MyService extends Service {
                     }else {
                         if (canwrite == false){//开始时执行以下操作
                             canwrite = true;
-                            start+=System.currentTimeMillis()-stopmile+40;
+                            start+=System.currentTimeMillis()-stopmile+60;
                             handler.sendEmptyMessage(starMessage);
                         }
                     }
