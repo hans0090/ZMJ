@@ -92,7 +92,6 @@ public class MyService extends Service {
     TextView bottom1;
 
 
-
     WindowManager windowManager;
 
     WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
@@ -106,13 +105,15 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
+            Settings.canDrawOverlays(this);
+
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         showIndicateWindow();
         initWordList();
 
         return super.onStartCommand(intent, flags, startId);
     }
-
 
 
     private void initGadget() {
@@ -139,43 +140,44 @@ public class MyService extends Service {
         addsec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                start -=500;
+                start -= 500;
             }
         });
         subsec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                start+=500;
+                start += 500;
             }
         });
 
         skiptotime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if (skiptotime.hasFocus())skiptotime.setText("");
+                if (skiptotime.hasFocus()) skiptotime.setText("");
             }
         });
 
         skiptotime.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (i== EditorInfo.IME_ACTION_DONE){
+                if (i == EditorInfo.IME_ACTION_DONE) {
                     String time = skiptotime.getText().toString();
                     //输入的时间是多少毫秒
                     long mile = 0;
                     try {
-                        if (isdigit(time)){
-                            if (time.length()<3)
-                                mile = Long.parseLong(time)*1000;
-                            else mile = Long.parseLong(time.substring(0,time.length()-2))*60000+Long.parseLong(time.substring(time.length()-2,time.length()))*1000;
-                        }else {
+                        if (isdigit(time)) {
+                            if (time.length() < 3)
+                                mile = Long.parseLong(time) * 1000;
+                            else
+                                mile = Long.parseLong(time.substring(0, time.length() - 2)) * 60000 + Long.parseLong(time.substring(time.length() - 2, time.length())) * 1000;
+                        } else {
                             String[] HourMinute = time.split(":");
-                            mile = Long.parseLong(HourMinute[0])*60000+Long.parseLong(HourMinute[0])*1000;
+                            mile = Long.parseLong(HourMinute[0]) * 60000 + Long.parseLong(HourMinute[0]) * 1000;
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    start -=((mile)-(stopmile-start));
+                    start -= ((mile) - (stopmile - start));
 
                 }
 
@@ -186,15 +188,13 @@ public class MyService extends Service {
         shield.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (bottom1.getVisibility() == View.VISIBLE){
+                if (bottom1.getVisibility() == View.VISIBLE) {
                     bottom1.setVisibility(View.GONE);
-                }else {
+                } else {
                     bottom1.setVisibility(View.VISIBLE);
                 }
             }
         });
-
-
 
 
         new Thread(new Runnable() {
@@ -215,9 +215,7 @@ public class MyService extends Service {
     }
 
 
-
-
-    private void initWordList(){
+    private void initWordList() {
         wordList = new HashMap<>();
 
         new Thread(new Runnable() {
@@ -240,7 +238,7 @@ public class MyService extends Service {
     }
 
     //打开
-    private void showIndicateWindow(){
+    private void showIndicateWindow() {
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater layoutInflater = LayoutInflater.from(this);
@@ -256,7 +254,6 @@ public class MyService extends Service {
         layoutParams.format = PixelFormat.RGBA_8888;
         layoutParams.gravity = Gravity.CENTER | Gravity.RIGHT;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        windowManager.addView(popop, layoutParams);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -267,13 +264,13 @@ public class MyService extends Service {
 
         layoutParams2.format = PixelFormat.RGBA_8888;
         layoutParams2.gravity = Gravity.CENTER | Gravity.RIGHT;
-        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 
-
+        windowManager.addView(popop, layoutParams);
         windowManager.addView(subtitleWindow, layoutParams2);
-
         subtitleWindow.setVisibility(View.INVISIBLE);
         popop.setVisibility(View.INVISIBLE);
+
 
         handler = new Handler() {
             @Override
@@ -286,25 +283,27 @@ public class MyService extends Service {
                         windowManager.updateViewLayout(subtitleWindow, layoutParams2);
                         makeSrtlist();
                         showSubtitleText();
-                        Toast.makeText(MyService.this,"稍等片刻，首行字幕开始于"+firstTime/60000+"分"+(firstTime%60000)/1000+"秒",Toast.LENGTH_LONG).show();
+                        Toast.makeText(MyService.this, "稍等片刻，首行字幕开始于" + firstTime / 60000 + "分" + (firstTime % 60000) / 1000 + "秒", Toast.LENGTH_LONG).show();
                         break;
 
                     case openFloat:
+
                         popop.setVisibility(View.VISIBLE);
                         subtitleWindow.setVisibility(View.INVISIBLE);
                         initGadget();
 
                     case starMessage:
                         handler.sendEmptyMessage(movefocus);
-                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+                        windowManager.updateViewLayout(subtitleWindow, layoutParams2);
                         hint1.setVisibility(View.GONE);
                         hint2.setVisibility(View.VISIBLE);
                         addsec.setVisibility(View.GONE);
                         subsec.setVisibility(View.GONE);
 //                        skiptotime.setVisibility(View.GONE);
                         shield.setVisibility(View.GONE);
-                        if (Build.VERSION.SDK_INT>15)subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorTransparent));
+                        if (Build.VERSION.SDK_INT > 15)
+                            subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorTransparent));
                         break;
 
                     case stopMessage:
@@ -316,20 +315,21 @@ public class MyService extends Service {
                         shield.setVisibility(View.VISIBLE);
                         skiptotime.setTextColor(Color.RED);
                         layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
-                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
-                        if (Build.VERSION.SDK_INT>15)subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorWHITE2));
+                        windowManager.updateViewLayout(subtitleWindow, layoutParams2);
+                        if (Build.VERSION.SDK_INT > 15)
+                            subtitleText.setBackground(subtitleText.getResources().getDrawable(R.color.colorWHITE2));
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    last ++;
+                                    last++;
                                     int a = last;
-                                        Thread.sleep(8000);
+                                    Thread.sleep(8000);
 
-                                        if (last == a)
+                                    if (last == a)
                                         handler.sendEmptyMessage(movefocus);
 
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -337,7 +337,7 @@ public class MyService extends Service {
                         break;
 
                     case refreshedit:
-                        skiptotime.setText((String)msg.obj);
+                        skiptotime.setText((String) msg.obj);
 //                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
                         break;
 
@@ -346,21 +346,21 @@ public class MyService extends Service {
                         skiptotime.setTextColor(Color.BLACK);
                         hint1.setVisibility(View.GONE);
                         subtitleWindow.clearFocus();
-                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                        windowManager.updateViewLayout(subtitleWindow,layoutParams2);
+                        layoutParams2.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+                        windowManager.updateViewLayout(subtitleWindow, layoutParams2);
                         break;
 
                     case refreshSubtitle:
-                        SpannableStringBuilder spannableStringBuilder = ChangeToSpanableString.change((String)msg.obj,MyService.this,wordList);
+                        SpannableStringBuilder spannableStringBuilder = ChangeToSpanableString.change((String) msg.obj, MyService.this, wordList);
                         BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(subtitleText.getResources().getColor(R.color.colorWHITE2));
-                        spannableStringBuilder.setSpan(backgroundColorSpan,0,spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        ForegroundColorSpan foregroundColorSpan=new ForegroundColorSpan(subtitleText.getResources().getColor(R.color.colorBLACK));
-                        spannableStringBuilder.setSpan(foregroundColorSpan,0,spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        spannableStringBuilder.setSpan(backgroundColorSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(subtitleText.getResources().getColor(R.color.colorBLACK));
+                        spannableStringBuilder.setSpan(foregroundColorSpan, 0, spannableStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         subtitleText.setText(spannableStringBuilder);
                         break;
 
                     case deliverUrl:
-                        url = (String)msg.obj;
+                        url = (String) msg.obj;
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -370,7 +370,7 @@ public class MyService extends Service {
                         break;
 
                     case deliverName:
-                        name = (String)msg.obj;
+                        name = (String) msg.obj;
                         break;
                 }
             }
@@ -382,7 +382,7 @@ public class MyService extends Service {
         srtList = new ArrayList<>();
 
         String[] sentences = subtitle.split("\n");
-        firstTime  = 99999999;
+        firstTime = 99999999;
         for (int i = 0; i < sentences.length; i++) {
             if (i % 4 == 1) {
                 try {
@@ -402,10 +402,10 @@ public class MyService extends Service {
                     int endTime = (end_hour * 3600 + end_mintue * 60 + end_scend)
                             * 1000 + end_milli;
 
-                    if (sentences[i+1].length()>1)
-                    srtList.add(new srt(sentences[i + 1], beginTime, endTime));
+                    if (sentences[i + 1].length() > 1)
+                        srtList.add(new srt(sentences[i + 1], beginTime, endTime));
 
-                    if (beginTime<firstTime&&sentences[i + 1].length()>3){ //最早记录开始时间
+                    if (beginTime < firstTime && sentences[i + 1].length() > 3) { //最早记录开始时间
                         firstTime = beginTime;
                     }
                 } catch (Exception e) {
@@ -419,70 +419,69 @@ public class MyService extends Service {
 
     private boolean canwrite = true;
     long stopmile;
+
     //显示歌词
-    private void showSubtitleText(){
+    private void showSubtitleText() {
 
         Log.e(TAG, "showSubtitle");
-        new Thread(new Runnable(){
+        new Thread(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 start = System.currentTimeMillis();
-                while (true){
-                    long passTime=System.currentTimeMillis()-start;//已经看过多长时间了，（毫秒）
+                while (true) {
+                    long passTime = System.currentTimeMillis() - start;//已经看过多长时间了，（毫秒）
                     for (int i1 = 0; i1 < srtList.size(); i1++) {
-                        if ((passTime>srtList.get(i1).getStartTime())&&(passTime<srtList.get(i1).getEndTime())){
-                            if (canwrite){
+                        if ((passTime > srtList.get(i1).getStartTime()) && (passTime < srtList.get(i1).getEndTime())) {
+                            if (canwrite) {
                                 Message message = handler.obtainMessage();
                                 message.what = refreshSubtitle;
-                                message.obj=srtList.get(i1).getBody();
+                                message.obj = srtList.get(i1).getBody();
                                 handler.sendMessage(message);
                             }
                             break;
                         }
 
 
-                        if (i1==srtList.size()-1){//如果没有对应的时间的字幕，则清空
-                            if (canwrite){
+                        if (i1 == srtList.size() - 1) {//如果没有对应的时间的字幕，则清空
+                            if (canwrite) {
                                 Message message = handler.obtainMessage();
                                 message.what = refreshSubtitle;
-                                message.obj="";
+                                message.obj = "";
                                 handler.sendMessage(message);
                             }
                         }
                     }
 
-                    if (canwrite){//刷新编辑框
+                    if (canwrite) {//刷新编辑框
                         Message message = handler.obtainMessage();
                         message.what = refreshedit;
                         String sec = "";
-                        if ((passTime/1000)%60<10){
-                            sec = "0" + (passTime/1000)%60;
+                        if ((passTime / 1000) % 60 < 10) {
+                            sec = "0" + (passTime / 1000) % 60;
+                        } else {
+                            sec = "" + (passTime / 1000) % 60;
                         }
-
-                        else {
-                            sec = "" + (passTime/1000)%60;
-                        }
-                        message.obj=""+(passTime/1000)/60 +":"+ sec;
+                        message.obj = "" + (passTime / 1000) / 60 + ":" + sec;
                         handler.sendMessage(message);
                     }
 
-                    if(!audioManager.isMusicActive()){//暂停时执行以下操作；
-                        if(canwrite == true){
+                    if (!audioManager.isMusicActive()) {//暂停时执行以下操作；
+                        if (canwrite == true) {
                             canwrite = false;
                             stopmile = System.currentTimeMillis();
                             handler.sendEmptyMessage(stopMessage);
                         }
 
-                    }else {
-                        if (canwrite == false){//开始时执行以下操作
+                    } else {
+                        if (canwrite == false) {//开始时执行以下操作
                             canwrite = true;
-                            start+=System.currentTimeMillis()-stopmile+60;
+                            start += System.currentTimeMillis() - stopmile + 60;
                             handler.sendEmptyMessage(starMessage);
                         }
                     }
                     try {
                         Thread.sleep(60);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -501,9 +500,9 @@ public class MyService extends Service {
         private boolean isMove = true;//判断悬浮窗是否移动
 
         @Override
-        public boolean onTouch(View arg0, MotionEvent event ){
+        public boolean onTouch(View arg0, MotionEvent event) {
             int action = event.getAction();
-            switch (action){
+            switch (action) {
                 case MotionEvent.ACTION_DOWN:
                     isMove = false;
                     mTouchStartY = (int) event.getRawY();
@@ -539,9 +538,9 @@ public class MyService extends Service {
         private boolean isMove = true;//判断悬浮窗是否移动
 
         @Override
-        public boolean onTouch(View arg0, MotionEvent event){
+        public boolean onTouch(View arg0, MotionEvent event) {
             int action = event.getAction();
-            switch (action){
+            switch (action) {
                 case MotionEvent.ACTION_DOWN:
                     isMove = false;
                     mTouchStartY = (int) event.getRawY();
@@ -569,9 +568,8 @@ public class MyService extends Service {
     }
 
 
-
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
     }
 
@@ -583,11 +581,10 @@ public class MyService extends Service {
 
     public boolean isdigit(String str) {
         for (int i1 = 0; i1 < str.length(); i1++) {
-            if (!Character.isDigit(str.charAt(i1))){
+            if (!Character.isDigit(str.charAt(i1))) {
                 return false;
             }
         }
         return true;
     }
-
 }
